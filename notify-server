@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+########################################################################
+#  Server part
+#
+#  Check if machines are alive and send notifications to each of them
+#  Every notification is represented as one line in $DLS_FILE
+#
+#
+DLS_FILE="/mnt/r/dls.txt"
+IPS="172.16.0.7 172.16.0.66"
+
+########################################################################
+
+# Check if DLS_FILE contains something
+if [[ $(wc -l $DLS_FILE|awk '{print $1}') -ne 0 ]] ; then
+  echo "Contains something" > /dev/null
+else
+  echo "Empty" > /dev/null
+  exit
+fi
+
+# Send notifications to alive computers
+for IP in $IPS ; do
+  /bin/ping -q -c 1 $IP >/dev/null 2>/dev/null
+  if [[ "$?" == "0" ]] ; then
+    IFS="
+"
+    for i in $(cat $DLS_FILE); do
+#      echo "Line: $i"
+      ssh -i ~/.ssh/notify_id_rsa $IP "notify-send \'$i\'"
+    done
+    rm $DLS_FILE
+    touch $DLS_FILE
+#else
+#    echo "$IP dead"
+  fi
+done
