@@ -1,15 +1,11 @@
 #!/bin/bash
 #
-########################################################################
-#  Client part
-#
-#  Displays notification sent from server through ssh
-#
-########################################################################
 
 MSG=$(echo $SSH_ORIGINAL_COMMAND|sed 's/notify-send //')
-CLEANSTRING=${MSG//[^a-zA-Z0-9_ ]/}
+CLEANSTRING=${MSG//[^a-zA-Z0-9_ \.]/}
 
+TORR=$(echo $CLEANSTRING| cut -d " " -f1)
 
-DISPLAY=:0 notify-send "$CLEANSTRING"
+if [[ "$TORR" == "Torrent" ]]; then ICON="--icon=/home/jedjisch/.local/icon/utorrent.png"; fi
 
+DISPLAY=:0 notify-send $ICON "$CLEANSTRING"
